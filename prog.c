@@ -33,6 +33,12 @@ int __cdecl wmain(int argc, WCHAR **argv) {
 
    DWORD dwReason;
    UINT  nProcInfoNeeded;
+//
+// Use an upper limit of 10 processes that we want to
+// query the data for. It would be more correct to
+// first ask for the number of processes by passing nProcInfo = 0
+// but for simplicity, the number 10 is just hard coded.
+//
    UINT  nProcInfo = 10;
 
    RM_PROCESS_INFO rgpi[10];
@@ -69,6 +75,12 @@ int __cdecl wmain(int argc, WCHAR **argv) {
 
          FILETIME ftCreate, ftExit, ftKernel, ftUser;
 
+      //
+      // Because Process IDs can be recycled. the RM_PROCESS_INFO struct identifies
+      // a process not only by its ID but also by its creation time. So, we need
+      // to compare both to make sure that we deal with a process that has not
+      // already exited.
+      //
          if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) &&
              CompareFileTime(&rgpi[procCnt].Process.ProcessStartTime, &ftCreate) == 0) {
 
